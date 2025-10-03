@@ -1,3 +1,4 @@
+// app/admin/services/[slug]/edit/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
@@ -13,10 +14,37 @@ type FormState = {
   order_no: number | null;
   is_published: boolean;
   is_archived?: boolean | null;
-  keywords?: string[] | null;       // ← eklendi
+  keywords?: string[] | null;
 };
 
-/* -------------------- Utils -------------------- */
+/* -------------------- Guards & helpers -------------------- */
+function isRecord(x: unknown): x is Record<string, unknown> {
+  return typeof x === "object" && x !== null;
+}
+function asString(v: unknown): string | undefined {
+  return typeof v === "string" ? v : undefined;
+}
+function asStringOrNull(v: unknown): string | null | undefined {
+  return typeof v === "string" ? v : v === null ? null : undefined;
+}
+function asNumberOrNull(v: unknown): number | null | undefined {
+  return typeof v === "number"
+    ? v
+    : typeof v === "string" && v.trim() !== ""
+    ? Number(v)
+    : v === null
+    ? null
+    : undefined;
+}
+function asBool(v: unknown): boolean | undefined {
+  return typeof v === "boolean" ? v : undefined;
+}
+function asStringArrayOrNull(v: unknown): string[] | null | undefined {
+  if (Array.isArray(v)) return v.map((s) => String(s));
+  return v === null ? null : undefined;
+}
+
+/** Basit slugify */
 function slugify(v: string) {
   return v
     .toLowerCase()
@@ -37,12 +65,12 @@ function slugify(v: string) {
 export default function EditService() {
   const router = useRouter();
 
-  // Next 15'te params bazen geç geliyor; güvenli alalım
-  const _params = useParams(); // { slug?: string | string[] }
-  const slug = useMemo(() => {
-    const s = (_params as any)?.slug;
+  // useParams tipli
+  const params = useParams<{ slug?: string | string[] }>();
+  const slug = useMemo<string | undefined>(() => {
+    const s = params?.slug;
     return Array.isArray(s) ? s[0] : s;
-  }, [_params]);
+  }, [params]);
 
   const [form, setForm] = useState<FormState>({
     title: "",
@@ -52,7 +80,7 @@ export default function EditService() {
     order_no: 1000,
     is_published: true,
     is_archived: false,
-    keywords: [],                   // ← eklendi
+    keywords: [],
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -76,26 +104,26 @@ export default function EditService() {
       if (!alive) return;
 
       if (res.ok) {
-        const data = await res.json();
-        if (data) {
+        const dataUnknown = (await res.json().catch(() => null)) as unknown;
+        if (isRecord(dataUnknown)) {
           setForm((prev) => ({
             ...prev,
-            id: data.id,
-            title: data.title ?? "",
-            slug: data.slug ?? "",
-            image_url: data.image_url ?? null,
-            description: data.description ?? null,
-            order_no: data.order_no ?? 1000,
-            is_published: !!data.is_published,
-            is_archived: !!data.is_archived,
-            keywords: Array.isArray(data.keywords) ? data.keywords : [], // ← eklendi
+            id: asString(dataUnknown.id) ?? prev.id,
+            title: asString(dataUnknown.title) ?? "",
+            slug: asString(dataUnknown.slug) ?? "",
+            image_url: asStringOrNull(dataUnknown.image_url) ?? null,
+            description: asStringOrNull(dataUnknown.description) ?? null,
+            order_no: asNumberOrNull(dataUnknown.order_no) ?? 1000,
+            is_published: asBool(dataUnknown.is_published) ?? false,
+            is_archived: (asBool(dataUnknown.is_archived) ?? false) as boolean,
+            keywords: asStringArrayOrNull(dataUnknown.keywords) ?? [],
           }));
         }
       } else if (res.status === 404) {
         setErr("Kayıt bulunamadı.");
       } else {
-        const j = await res.json().catch(() => ({}));
-        setErr(j?.error || `Hata: ${res.status}`);
+        const j = (await res.json().catch(() => null)) as unknown;
+        setErr(isRecord(j) && typeof j.error === "string" ? j.error : `Hata: ${res.status}`);
       }
       setLoading(false);
     })();
@@ -107,38 +135,39 @@ export default function EditService() {
 
   const autoSlug = useMemo(() => slugify(form.title || ""), [form.title]);
 
-  /* -------- Görsel Upload -------- */
-  async function uploadImage() {
-    if (!file) {
-      setErr("Önce bir dosya seç.");
-      return;
-    }
-    if (!form.id) {
-      setErr("Kayıt ID’si yok. Sayfayı yenilemeyi dene.");
-      return;
-    }
-    setErr(null);
-    setOk(null);
+  type UploadResp = { url: string; path?: string };
 
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("serviceId", form.id);
+function isUploadResp(x: unknown): x is UploadResp {
+  return typeof x === "object" && x !== null && typeof (x as any).url === "string";
+}
 
-    const res = await fetch("/api/admin/services/upload", {
-      method: "POST",
-      body: fd,
-    });
+async function uploadImage() {
+  if (!file) return setErr("Önce bir dosya seç.");
+  if (!form.id) return setErr("Kayıt ID’si yok. Sayfayı yenile.");
 
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      setErr(j?.error || `Yükleme hatası (${res.status})`);
-      return;
-    }
+  setErr(null);
+  setOk(null);
 
-    const j = await res.json();
-    setForm((p) => ({ ...p, image_url: j.url }));
-    setOk("Görsel yüklendi.");
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("serviceId", form.id);
+
+  const res = await fetch("/api/admin/services/upload", { method: "POST", body: fd });
+
+  if (!res.ok) {
+    const j = (await res.json().catch(() => null)) as unknown;
+    setErr(typeof j === "object" && j && "error" in j ? (j as any).error : `Yükleme hatası (${res.status})`);
+    return;
   }
+
+  const j = (await res.json().catch(() => null)) as unknown;
+  if (isUploadResp(j)) {
+    setForm((p) => ({ ...p, image_url: j.url })); // ← artık string
+    setOk("Görsel yüklendi.");
+  } else {
+    setErr("Beklenmeyen cevap.");
+  }
+}
 
   /* -------- Kaydet -------- */
   function onSubmit(e: React.FormEvent) {
@@ -149,7 +178,7 @@ export default function EditService() {
     const payload: FormState = {
       ...form,
       slug: form.slug?.trim() ? slugify(form.slug) : autoSlug,
-      keywords: (form.keywords ?? []).map((k) => k.trim()).filter(Boolean), // ← eklendi
+      keywords: (form.keywords ?? []).map((k) => k.trim()).filter(Boolean),
     };
 
     startTransition(async () => {
@@ -160,8 +189,8 @@ export default function EditService() {
       });
 
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        setErr(j?.error || "Kaydedilemedi.");
+        const j = (await res.json().catch(() => null)) as unknown;
+        setErr(isRecord(j) && typeof j.error === "string" ? j.error : "Kaydedilemedi.");
         return;
       }
       setOk("Kaydedildi.");
@@ -303,7 +332,7 @@ export default function EditService() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                 className="text-sm"
               />
               <button

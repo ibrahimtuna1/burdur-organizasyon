@@ -16,8 +16,9 @@ export default function AdminSettingsPage() {
       if (!res.ok) throw new Error("Çıkış başarısız.");
       router.replace("/admin/login");
       router.refresh();
-    } catch (e: any) {
-      setErr(e?.message ?? "Bir şeyler ters gitti.");
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      setErr(message || "Bir şeyler ters gitti.");
     } finally {
       setLoading(false);
     }
