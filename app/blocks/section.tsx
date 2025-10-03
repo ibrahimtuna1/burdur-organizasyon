@@ -1,7 +1,7 @@
 // app/blocks/section.tsx
 "use client";
 
-import Image from "next/image";
+import Image, { type ImageLoader } from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -42,7 +42,7 @@ const supabase = createClient(
 );
 
 // next/image için whitelist gerekmeden dış URL gösteren loader
-const passthroughLoader = ({ src }: { src: string }) => src;
+const passthroughLoader: ImageLoader = ({ src }) => src;
 
 export default function Sections() {
   const [services, setServices] = useState<Service[] | null>(null);
@@ -59,7 +59,7 @@ export default function Sections() {
           .order("order_no", { ascending: true })
           .limit(8);
         if (error) throw error;
-        if (alive) setServices(data ?? []);
+        if (alive) setServices((data ?? []) as Service[]);
       } catch {
         if (alive) setServices([]);
       } finally {
@@ -70,6 +70,10 @@ export default function Sections() {
       alive = false;
     };
   }, []);
+
+  // Skeleton listesi tipli
+  const list: (Service | null)[] =
+    services ?? Array.from({ length: 8 }, () => null);
 
   return (
     <>
@@ -99,7 +103,7 @@ export default function Sections() {
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <a
-                  href="#hizmetler"
+                  href="#hizmet"
                   className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
                 >
                   Hizmetlerimizi Gör
@@ -158,7 +162,7 @@ export default function Sections() {
           </div>
 
           <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {(services ?? Array.from({ length: 8 })).map((s: any, i: number) => (
+            {list.map((s, i) => (
               <li key={s?.id ?? i}>
                 <Link
                   href={s ? `/hizmet/${s.slug}` : "#"}
