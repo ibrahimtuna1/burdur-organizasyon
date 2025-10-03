@@ -9,10 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.58.0",
+    "alias": "^0.0.5",
     "framer-motion": "^12.23.22",
+    "lucide-react": "^0.544.0",
     "next": "15.5.4",
     "react": "^19.1.0",
     "react-dom": "19.1.0",
+    "supabase": "^2.48.3",
     "swiper": "^12.0.2"
   },
   "devDependencies": {

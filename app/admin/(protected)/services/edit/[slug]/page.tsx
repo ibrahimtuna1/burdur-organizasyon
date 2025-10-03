@@ -1,0 +1,383 @@
+"use client";
+
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter, useParams } from "next/navigation";
+
+/* -------------------- Types -------------------- */
+type FormState = {
+  id?: string;
+  title: string;
+  slug: string;
+  image_url: string | null;
+  description: string | null;
+  order_no: number | null;
+  is_published: boolean;
+  is_archived?: boolean | null;
+  keywords?: string[] | null;       // ← eklendi
+};
+
+/* -------------------- Utils -------------------- */
+function slugify(v: string) {
+  return v
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+/* -------------------- Page -------------------- */
+export default function EditService() {
+  const router = useRouter();
+
+  // Next 15'te params bazen geç geliyor; güvenli alalım
+  const _params = useParams(); // { slug?: string | string[] }
+  const slug = useMemo(() => {
+    const s = (_params as any)?.slug;
+    return Array.isArray(s) ? s[0] : s;
+  }, [_params]);
+
+  const [form, setForm] = useState<FormState>({
+    title: "",
+    slug: "",
+    image_url: null,
+    description: null,
+    order_no: 1000,
+    is_published: true,
+    is_archived: false,
+    keywords: [],                   // ← eklendi
+  });
+
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  /* -------- Kayıt Çek -------- */
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!slug || typeof slug !== "string") return;
+      setLoading(true);
+      setErr(null);
+
+      const res = await fetch(`/api/admin/services/${encodeURIComponent(slug)}`, {
+        cache: "no-store",
+      });
+
+      if (!alive) return;
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          setForm((prev) => ({
+            ...prev,
+            id: data.id,
+            title: data.title ?? "",
+            slug: data.slug ?? "",
+            image_url: data.image_url ?? null,
+            description: data.description ?? null,
+            order_no: data.order_no ?? 1000,
+            is_published: !!data.is_published,
+            is_archived: !!data.is_archived,
+            keywords: Array.isArray(data.keywords) ? data.keywords : [], // ← eklendi
+          }));
+        }
+      } else if (res.status === 404) {
+        setErr("Kayıt bulunamadı.");
+      } else {
+        const j = await res.json().catch(() => ({}));
+        setErr(j?.error || `Hata: ${res.status}`);
+      }
+      setLoading(false);
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [slug]);
+
+  const autoSlug = useMemo(() => slugify(form.title || ""), [form.title]);
+
+  /* -------- Görsel Upload -------- */
+  async function uploadImage() {
+    if (!file) {
+      setErr("Önce bir dosya seç.");
+      return;
+    }
+    if (!form.id) {
+      setErr("Kayıt ID’si yok. Sayfayı yenilemeyi dene.");
+      return;
+    }
+    setErr(null);
+    setOk(null);
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("serviceId", form.id);
+
+    const res = await fetch("/api/admin/services/upload", {
+      method: "POST",
+      body: fd,
+    });
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      setErr(j?.error || `Yükleme hatası (${res.status})`);
+      return;
+    }
+
+    const j = await res.json();
+    setForm((p) => ({ ...p, image_url: j.url }));
+    setOk("Görsel yüklendi.");
+  }
+
+  /* -------- Kaydet -------- */
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    setOk(null);
+
+    const payload: FormState = {
+      ...form,
+      slug: form.slug?.trim() ? slugify(form.slug) : autoSlug,
+      keywords: (form.keywords ?? []).map((k) => k.trim()).filter(Boolean), // ← eklendi
+    };
+
+    startTransition(async () => {
+      const res = await fetch("/api/admin/services/upsert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setErr(j?.error || "Kaydedilemedi.");
+        return;
+      }
+      setOk("Kaydedildi.");
+      setTimeout(() => router.push("/admin/services"), 700);
+    });
+  }
+
+  if (!slug) {
+    return (
+      <div className="p-6">
+        Geçersiz URL.{" "}
+        <button className="underline" onClick={() => router.push("/admin/services")}>
+          Listeye dön
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) return <div className="p-6">Yükleniyor…</div>;
+
+  /* -------------------- UI -------------------- */
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Hizmet Düzenle</h1>
+        <button
+          onClick={() => router.push("/admin/services")}
+          className="rounded-md border px-3 py-2 text-sm"
+        >
+          Listeye Dön
+        </button>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* -------- Form -------- */}
+        <form onSubmit={onSubmit} className="space-y-4 rounded-xl border bg-white p-4 shadow-sm">
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Başlık</label>
+            <input
+              className="rounded-md border px-3 py-2"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Örn: Vip Nişan Konsepti"
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Slug</label>
+              <button
+                type="button"
+                className="text-xs underline"
+                onClick={() => setForm((p) => ({ ...p, slug: autoSlug }))}
+              >
+                Başlıktan öner: {autoSlug || "-"}
+              </button>
+            </div>
+            <input
+              className="rounded-md border px-3 py-2"
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              placeholder="vip-nisan-konsepti"
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Açıklama</label>
+            <textarea
+              className="min-h-32 rounded-md border px-3 py-2"
+              value={form.description ?? ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Kısa açıklama…"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Sıra</label>
+            <input
+              type="number"
+              className="w-32 rounded-md border px-3 py-2"
+              value={form.order_no ?? 1000}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  order_no: Number.isNaN(+e.target.value) ? 1000 : +e.target.value,
+                })
+              }
+            />
+          </div>
+
+          {/* -------- Keywords -------- */}
+          <div className="grid gap-1.5">
+            <label className="text-sm font-medium">Keywords (virgülle ayır)</label>
+            <input
+              className="rounded-md border px-3 py-2"
+              value={(form.keywords ?? []).join(", ")}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  keywords: e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                })
+              }
+              placeholder="düğün, kına, nişan, mekan süsleme, organizasyon"
+            />
+            <p className="text-xs text-gray-500">
+              Örn: <em>düğün, kına, nişan</em>. Araya virgül koy; boşluk önemli değil.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!!form.is_published}
+                onChange={(e) => setForm({ ...form, is_published: e.target.checked })}
+              />
+              Yayında
+            </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!!form.is_archived}
+                onChange={(e) => setForm({ ...form, is_archived: e.target.checked })}
+              />
+              Arşiv
+            </label>
+          </div>
+
+          {/* -------- Görsel Yükleme -------- */}
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Kapak Görseli</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="text-sm"
+              />
+              <button
+                type="button"
+                disabled={!file || !form.id || pending}
+                onClick={() => uploadImage()}
+                className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+              >
+                {pending ? "Yükleniyor…" : "Yükle"}
+              </button>
+            </div>
+            {form.image_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={form.image_url}
+                alt="Kapak"
+                className="mt-2 h-32 w-56 rounded-md border object-cover"
+              />
+            )}
+          </div>
+
+          {err && <p className="text-sm text-red-600">{err}</p>}
+          {ok && <p className="text-sm text-green-600">{ok}</p>}
+
+          <div className="flex gap-3">
+            <button className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-60" disabled={pending}>
+              {pending ? "Kaydediliyor…" : "Kaydet"}
+            </button>
+            <button type="button" className="rounded-md border px-4 py-2" onClick={() => router.back()}>
+              Vazgeç
+            </button>
+          </div>
+        </form>
+
+        {/* -------- Önizleme -------- */}
+        <div className="rounded-xl border bg-white p-4 shadow-sm">
+          <p className="mb-2 text-sm text-gray-500">Önizleme</p>
+          <article className="overflow-hidden rounded-xl border bg-white shadow-sm">
+            <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
+              {form.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={form.image_url} alt={form.title || "Kapak"} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-gray-400">Kapak yok</div>
+              )}
+            </div>
+            <div className="space-y-2 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="line-clamp-2 text-base font-semibold text-gray-900">{form.title || "Başlık"}</h3>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    form.is_published ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  {form.is_published ? "Yayında" : "Taslak"}
+                </span>
+              </div>
+              <p className={`line-clamp-2 text-sm ${form.description ? "text-gray-600" : "text-gray-400"}`}>
+                {form.description || "Açıklama girilmemiş."}
+              </p>
+              <div className="flex items-center justify-between pt-1 text-xs text-gray-500">
+                <span>Sıra: {form.order_no ?? "—"}</span>
+                <span className="truncate">/{form.slug || slugify(form.title || "")}</span>
+              </div>
+              {form.keywords && form.keywords.length > 0 && (
+                <div className="pt-2 text-xs text-gray-500">
+                  <span className="mr-1 font-medium">Keywords:</span>
+                  {form.keywords.join(", ")}
+                </div>
+              )}
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  );
+}
