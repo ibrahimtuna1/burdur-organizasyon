@@ -66,7 +66,9 @@ export default function Sections() {
         if (alive) setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   return (
@@ -133,7 +135,7 @@ export default function Sections() {
       </section>
 
       {/* HİZMETLERİMİZ — Supabase'ten ilk 8 */}
-      <section id="hizmetler" className="w-full bg-white">
+      <section id="hizmet" className="w-full bg-white">
         <motion.div
           className="mx-auto max-w-7xl px-4 pb-4 pt-4 sm:px-6 lg:px-8"
           initial={{ opacity: 0, y: 24 }}
@@ -147,10 +149,11 @@ export default function Sections() {
               <p className="mt-2 text-slate-600">Konsepte göre özelleştirilebilir paketler.</p>
             </div>
             <Link
-              href="#teklif"
+              href="#iletisim"
               className="hidden rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow md:inline-block"
+              prefetch
             >
-              Teklif Al
+              İletişime Geç
             </Link>
           </div>
 
@@ -158,7 +161,7 @@ export default function Sections() {
             {(services ?? Array.from({ length: 8 })).map((s: any, i: number) => (
               <li key={s?.id ?? i}>
                 <Link
-                  href={s ? `/hizmetler/${s.slug}` : "#"}
+                  href={s ? `/hizmet/${s.slug}` : "#"}
                   className="group relative block overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                   prefetch
                 >
@@ -185,7 +188,7 @@ export default function Sections() {
                   </div>
                   <div className="p-3">
                     <h4 className="line-clamp-1 text-sm font-semibold text-slate-900">
-                      {s ? s.title : (loading ? "Yükleniyor..." : "—")}
+                      {s ? s.title : loading ? "Yükleniyor..." : "—"}
                     </h4>
                   </div>
                 </Link>
@@ -195,10 +198,11 @@ export default function Sections() {
 
           <div className="mt-6 md:hidden">
             <Link
-              href="#teklif"
+              href="#iletisim"
               className="block rounded-md border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
+              prefetch
             >
-              Teklif Al
+              İletişime Geç
             </Link>
           </div>
         </motion.div>
@@ -218,65 +222,74 @@ export default function Sections() {
               <div className="flex items-center gap-4">
                 <div className="rounded-full border border-slate-200 p-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-                    <path d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2Zm1 5h-2v6l5 3 .9-1.8-3.9-2.2V7Z" fill="currentColor" className="text-slate-700" />
+                    <path
+                      d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2Zm1 5h-2v6l5 3 .9-1.8-3.9-2.2V7Z"
+                      fill="currentColor"
+                      className="text-slate-700"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold"><Counter to={13} /></div>
+                  <div className="text-2xl font-bold">
+                    <Counter to={13} />
+                  </div>
                   <div className="text-sm text-slate-600">Yıllık Tecrübe</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="rounded-full border border-slate-200 p-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-                    <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z" fill="currentColor" className="text-slate-700" />
+                    <path
+                      d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z"
+                      fill="currentColor"
+                      className="text-slate-700"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold"><Counter to={2845} /></div>
+                  <div className="text-2xl font-bold">
+                    <Counter to={2845} />
+                  </div>
                   <div className="text-sm text-slate-600">Müşteri</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="rounded-full border border-slate-200 p-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-                    <path d="M12 2 3 7l9 5 9-5-9-5Zm0 7L3 14l9 5 9-5-9-5Z" fill="currentColor" className="text-slate-700" />
+                    <path
+                      d="M12 2 3 7l9 5 9-5-9-5Zm0 7L3 14l9 5 9-5-9-5Z"
+                      fill="currentColor"
+                      className="text-slate-700"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold"><Counter to={3625} /></div>
+                  <div className="text-2xl font-bold">
+                    <Counter to={3625} />
+                  </div>
                   <div className="text-sm text-slate-600">Organizasyon</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="rounded-full border border-slate-200 p-3">
                   <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-                    <path d="M3 4h18v12H7l-4 4V4Z" fill="currentColor" className="text-slate-700" />
+                    <path
+                      d="M3 4h18v12H7l-4 4V4Z"
+                      fill="currentColor"
+                      className="text-slate-700"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold"><Counter to={1854} /></div>
+                  <div className="text-2xl font-bold">
+                    <Counter to={1854} />
+                  </div>
                   <div className="text-sm text-slate-600">Olumlu Yorum</div>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
-      </section>
-
-      {/* GALERİ / TEKLİF placeholder */}
-      <section id="galeri" className="w-full bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-slate-900">Galeri</h2>
-          <p className="mt-2 max-w-2xl text-slate-600">Yakında etkinlik fotoğraf ve videolarımız burada.</p>
-        </div>
-      </section>
-
-      <section id="teklif" className="w-full bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-slate-900">Teklif Al</h2>
-          <p className="mt-2 max-w-2xl text-slate-600">Hızlı teklif için form veya WhatsApp.</p>
-        </div>
       </section>
 
       {/* İLETİŞİM — Ara / WhatsApp */}
@@ -295,7 +308,9 @@ export default function Sections() {
               Telefon: {phoneHuman}
             </a>
             <a
-              href={`https://wa.me/905412029659?text=${encodeURIComponent("Merhaba, organizasyon hizmetleri hakkında bilgi almak istiyorum.")}`}
+              href={`https://wa.me/905412029659?text=${encodeURIComponent(
+                "Merhaba, organizasyon hizmetleri hakkında bilgi almak istiyorum."
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
