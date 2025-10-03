@@ -19,7 +19,7 @@ type ServiceRow = {
   source_url: string | null;
   order_no: number | null;
   is_published: boolean;
-  is_archived?: boolean | null; // yeni kolon (aşağıdaki SQL)
+  is_archived: boolean | null; // nullable olabilir
   updated_at: string | null;
 };
 
@@ -33,7 +33,7 @@ async function getData(): Promise<ServiceRow[]> {
     .select(
       "id, slug, title, image_url, description, source_url, is_published, is_archived, order_no, updated_at"
     )
-    .order("is_archived", { ascending: true, nullsFirst: true }) // arşivdekileri alta it
+    .order("is_archived", { ascending: true, nullsFirst: true })
     .order("order_no", { ascending: true, nullsFirst: false })
     .order("updated_at", { ascending: false });
 
@@ -51,20 +51,26 @@ async function togglePublish(id: string, nextVal: boolean) {
   revalidatePath("/admin/services");
 }
 
+type MoveRow = { id: string; order_no: number | null; is_archived: boolean | null };
 type OrderRow = { id: string; order_no: number | null };
+
 async function moveService(id: string, dir: "up" | "down") {
   "use server";
   const { data: rows } = await supabaseAdmin
     .from("services")
-    .select("id,order_no, is_archived")
+    .select("id,order_no,is_archived")
     .order("is_archived", { ascending: true, nullsFirst: true })
     .order("order_no", { ascending: true });
 
-  const visible = (rows ?? []).filter((r: any) => !r.is_archived);
-  const list: OrderRow[] = visible.map((r: any, i: number) => ({
+  const rowsSafe: MoveRow[] = (rows ?? []) as MoveRow[];
+
+  // sadece arşivde olmayanlar
+  const visible = rowsSafe.filter((r) => !r.is_archived);
+  const list: OrderRow[] = visible.map((r, i) => ({
     id: r.id,
     order_no: r.order_no ?? i + 1,
   }));
+
   if (list.length === 0) return revalidatePath("/admin/services");
 
   const idx = list.findIndex((r) => r.id === id);
@@ -92,8 +98,8 @@ async function deleteService(id: string) {
 
 async function setArchive(id: string, nextVal: boolean) {
   "use server";
-  // arşive alınca yayından da düşürmek mantıklı
-  const patch: Record<string, any> = { is_archived: nextVal };
+  // arşive alınca yayından düşür (opsiyonel ama mantıklı)
+  const patch: { is_archived: boolean; is_published?: boolean } = { is_archived: nextVal };
   if (nextVal) patch.is_published = false;
 
   await supabaseAdmin.from("services").update(patch).eq("id", id);
@@ -196,7 +202,7 @@ export default async function ServicesAdminPage() {
                     </button>
                   </form>
 
-                  {/* Yukarı / Aşağı (arşivdekilerde pasif) */}
+                  {/* Yukarı / Aşağı */}
                   <form action={moveService.bind(null, s.id, "up")}>
                     <button
                       type="submit"

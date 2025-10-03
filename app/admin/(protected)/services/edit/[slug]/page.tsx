@@ -1,4 +1,4 @@
-// app/admin/services/[slug]/edit/page.tsx
+// app/admin/(protected)/services/edit/[slug]/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
@@ -42,6 +42,13 @@ function asBool(v: unknown): boolean | undefined {
 function asStringArrayOrNull(v: unknown): string[] | null | undefined {
   if (Array.isArray(v)) return v.map((s) => String(s));
   return v === null ? null : undefined;
+}
+/** API error çıkarıcı */
+function extractError(x: unknown): string | undefined {
+  if (!isRecord(x)) return;
+  if (typeof x.error === "string") return x.error;
+  if (typeof x.message === "string") return x.message;
+  return;
 }
 
 /** Basit slugify */
@@ -123,7 +130,7 @@ export default function EditService() {
         setErr("Kayıt bulunamadı.");
       } else {
         const j = (await res.json().catch(() => null)) as unknown;
-        setErr(isRecord(j) && typeof j.error === "string" ? j.error : `Hata: ${res.status}`);
+        setErr(extractError(j) ?? `Hata: ${res.status}`);
       }
       setLoading(false);
     })();
@@ -135,39 +142,40 @@ export default function EditService() {
 
   const autoSlug = useMemo(() => slugify(form.title || ""), [form.title]);
 
+  /* -------- Görsel Upload -------- */
   type UploadResp = { url: string; path?: string };
+  function isUploadResp(x: unknown): x is UploadResp {
+    if (!isRecord(x)) return false;
+    return typeof x.url === "string";
+  }
 
-function isUploadResp(x: unknown): x is UploadResp {
-  return typeof x === "object" && x !== null && typeof (x as any).url === "string";
-}
+  async function uploadImage() {
+    if (!file) return setErr("Önce bir dosya seç.");
+    if (!form.id) return setErr("Kayıt ID’si yok. Sayfayı yenile.");
 
-async function uploadImage() {
-  if (!file) return setErr("Önce bir dosya seç.");
-  if (!form.id) return setErr("Kayıt ID’si yok. Sayfayı yenile.");
+    setErr(null);
+    setOk(null);
 
-  setErr(null);
-  setOk(null);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("serviceId", form.id);
 
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("serviceId", form.id);
+    const res = await fetch("/api/admin/services/upload", { method: "POST", body: fd });
 
-  const res = await fetch("/api/admin/services/upload", { method: "POST", body: fd });
+    if (!res.ok) {
+      const j = (await res.json().catch(() => null)) as unknown;
+      setErr(extractError(j) ?? `Yükleme hatası (${res.status})`);
+      return;
+    }
 
-  if (!res.ok) {
     const j = (await res.json().catch(() => null)) as unknown;
-    setErr(typeof j === "object" && j && "error" in j ? (j as any).error : `Yükleme hatası (${res.status})`);
-    return;
+    if (isUploadResp(j)) {
+      setForm((p) => ({ ...p, image_url: j.url }));
+      setOk("Görsel yüklendi.");
+    } else {
+      setErr("Beklenmeyen cevap.");
+    }
   }
-
-  const j = (await res.json().catch(() => null)) as unknown;
-  if (isUploadResp(j)) {
-    setForm((p) => ({ ...p, image_url: j.url })); // ← artık string
-    setOk("Görsel yüklendi.");
-  } else {
-    setErr("Beklenmeyen cevap.");
-  }
-}
 
   /* -------- Kaydet -------- */
   function onSubmit(e: React.FormEvent) {
@@ -190,7 +198,7 @@ async function uploadImage() {
 
       if (!res.ok) {
         const j = (await res.json().catch(() => null)) as unknown;
-        setErr(isRecord(j) && typeof j.error === "string" ? j.error : "Kaydedilemedi.");
+        setErr(extractError(j) ?? "Kaydedilemedi.");
         return;
       }
       setOk("Kaydedildi.");
