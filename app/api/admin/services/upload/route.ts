@@ -7,19 +7,17 @@ import { supabaseAdmin } from "@/lib/supabase/serverAdmin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const BUCKET = process.env.SUPABASE_BUCKET_SERVICES || "services";
+const BUCKET = (process.env.SUPABASE_BUCKET_SERVICES || "services").trim();
 
 async function ensureBucket(name: string) {
-  // listele
   const { data: list, error: listErr } = await supabaseAdmin.storage.listBuckets();
   if (listErr) throw listErr;
-  const exists = (list || []).some((b) => b.name === name);
-  if (exists) return;
+  const buckets = (list ?? []) as Array<{ name: string }>;
+  if (buckets.some((b) => b.name === name)) return;
 
-  // yoksa oluştur (public)
   const { error: createErr } = await supabaseAdmin.storage.createBucket(name, {
-    public: true,           // public URL ile göstereceğiz
-    fileSizeLimit: "20MB",  // opsiyonel
+    public: true,
+    fileSizeLimit: "20MB",
   });
   if (createErr) throw createErr;
 }
@@ -32,13 +30,16 @@ export async function POST(req: Request) {
 
   try {
     const form = await req.formData();
-    const file = form.get("file") as File | null;
-    const serviceId = form.get("serviceId") as string | null;
+    const file = form.get("file");
+    const serviceId = form.get("serviceId");
 
-    if (!file) return NextResponse.json({ error: "file is required" }, { status: 400 });
-    if (!serviceId) return NextResponse.json({ error: "serviceId is required" }, { status: 400 });
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "file is required" }, { status: 400 });
+    }
+    if (typeof serviceId !== "string" || !serviceId.trim()) {
+      return NextResponse.json({ error: "serviceId is required" }, { status: 400 });
+    }
 
-    // BUCKET garanti
     await ensureBucket(BUCKET);
 
     const buf = Buffer.from(await file.arrayBuffer());
@@ -51,22 +52,30 @@ export async function POST(req: Request) {
         contentType: file.type || "application/octet-stream",
         upsert: true,
       });
-    if (upErr) {
+
+    if (upErr || !up) {
       console.error("[upload:storage]", upErr);
-      return NextResponse.json({ error: upErr.message }, { status: 500 });
+      return NextResponse.json({ error: upErr?.message ?? "Upload failed" }, { status: 500 });
     }
 
+    // getPublicUrl: error yok, sadece data döner
     const { data: pub } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(up.path);
     const publicUrl = pub.publicUrl;
 
-    await supabaseAdmin
+    const { error: updErr } = await supabaseAdmin
       .from("services")
       .update({ image_url: publicUrl, updated_at: new Date().toISOString() })
       .eq("id", serviceId);
 
+    if (updErr) {
+      console.error("[upload:update-row]", updErr);
+      return NextResponse.json({ error: updErr.message }, { status: 500 });
+    }
+
     return NextResponse.json({ url: publicUrl, path: up.path });
-  } catch (e: any) {
-    console.error("[upload:catch]", e);
-    return NextResponse.json({ error: e?.message || "Unknown error" }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[upload:catch]", message);
+    return NextResponse.json({ error: message || "Unknown error" }, { status: 500 });
   }
 }
