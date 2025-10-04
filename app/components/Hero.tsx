@@ -40,9 +40,7 @@ export default function Hero() {
       {slides.map((slide, i) => (
         <div
           key={i}
-          className={`absolute inset-0 transition-opacity duration-700 ${
-            i === current ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           aria-hidden={i !== current}
         >
           <motion.img
@@ -82,8 +80,8 @@ export default function Hero() {
                   </p>
                 )}
 
-                <div className="pt-5 flex justify-center md:justify-start">
-                  {/* CTA: gradient turuncu→pembe */}
+                {/* Desktop CTA burada; mobilde gizli */}
+                <div className="pt-5 hidden md:flex md:justify-start">
                   <a
                     href={callHref}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 px-7 py-3 font-semibold text-white shadow-lg transition hover:opacity-90 active:scale-[0.98]"
@@ -93,14 +91,26 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* alt vurgu çizgisi: aynı palette hafif glow */}
-              <div className="mx-auto mt-4 w-28 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 h-1.5 shadow-[0_4px_18px_rgba(236,72,153,0.45)] md:mx-0" />
+              {/* alt vurgu çizgisi */}
+              <div className="mx-auto mt-4 h-1.5 w-28 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 shadow-[0_4px_18px_rgba(236,72,153,0.45)] md:mx-0" />
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* kontroller (oklar): gradient + beyaz ikon */}
+      {/* mobil CTA: tamamen alta sabit (hero içinde) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 pb-4 md:hidden">
+        <div className="pointer-events-auto mx-auto w-full max-w-7xl">
+          <a
+            href={callHref}
+            className="mx-auto block w-[min(92%,28rem)] rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 px-7 py-3 text-center font-semibold text-white shadow-lg transition hover:opacity-90 active:scale-[0.98]"
+          >
+            Hemen Ara 📞
+          </a>
+        </div>
+      </div>
+
+      {/* oklar */}
       <button
         onClick={prev}
         aria-label="Önceki"
@@ -116,8 +126,8 @@ export default function Hero() {
         ›
       </button>
 
-      {/* pagination: aktif dot gradient, pasifler beyaz/70 */}
-      <div className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 flex gap-3">
+      {/* pagination: CTA ile çakışmasın diye biraz yukarı */}
+      <div className="absolute bottom-16 left-1/2 z-40 -translate-x-1/2 flex gap-3 md:bottom-8">
         {slides.map((_, idx) => (
           <button
             key={idx}
