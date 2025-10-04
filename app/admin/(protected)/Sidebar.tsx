@@ -37,6 +37,7 @@ export default function Sidebar() {
       <h2 className="mb-8 text-lg font-bold text-gray-800">Burdur Organizasyon</h2>
       <nav className="flex flex-col gap-1">
         <SidebarLink href="/admin/hizmetler" icon={Palette} label="Hizmetlerimiz" />
+        <SidebarLink href="/admin/packages" icon={Palette} label="paketler" />
         <SidebarLink href="/admin/settings" icon={Settings} label="Ayarlar" />
       </nav>
     </aside>
