@@ -87,17 +87,19 @@ export default function Footer() {
               <li>✉️ <a href="mailto:destek@organizasyoncum.net" className="hover:text-slate-900 transition">destek@organizasyoncum.net</a></li>
             </ul>
             <div className="mt-3">
-              // Footer.tsx içinde:
+              {/* Footer CTA */}
               <a
                 href="tel:+905412029659"
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-3.5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-                  <path fill="currentColor" d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.63 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.09a2 2 0 0 1 2.11-.45c.84.3 1.71.51 2.61.63A2 2 0 0 1 22 16.92z" />
+                  <path
+                    fill="currentColor"
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.08 4.18 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.63 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.09a2 2 0 0 1 2.11-.45c.84.3 1.71.51 2.61.63A2 2 0 0 1 22 16.92z"
+                  />
                 </svg>
                 Hemen Ara
               </a>
-
             </div>
           </div>
         </div>
