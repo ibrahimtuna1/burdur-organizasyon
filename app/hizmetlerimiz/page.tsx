@@ -41,32 +41,37 @@ export default async function Page() {
             Şu an listelenecek hizmet yok. Yakında eklenecek. ✨
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((s) => (
               <Link
                 key={s.slug}
                 href={`/hizmet/${s.slug}`}
                 aria-label={s.title}
-                className="group overflow-hidden rounded-xl border border-gray-200 bg-white hover:shadow-md transition"
+                className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                {/* Daha küçük kapak: sabit yükseklik, cover */}
-                <div className="relative w-full h-40 sm:h-48 lg:h-44 bg-gray-100">
-                  <SafeImage
-                    src={s.image_url ?? undefined}
-                    alt={s.title}
-                    fill
-                    className="object-cover group-hover:scale-[1.02] transition"
-                    label="Görsel yok"
-                    sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-                  />
+                {/* KESİLME YOK: aspect-ratio + object-contain */}
+                <div className="relative w-full bg-gray-50">
+                  {/* mobilde 5:4, tablet 4:3, desktop 16:9  */}
+                  <div className="aspect-[5/4] sm:aspect-[4/3] lg:aspect-[16/9] relative">
+                    <SafeImage
+                      src={s.image_url ?? undefined}
+                      alt={s.title}
+                      fill
+                      className="object-contain object-center transition duration-300 group-hover:scale-[1.01]"
+                      label="Görsel yok"
+                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                    />
+                    {/* İnce hairline */}
+                    <div className="pointer-events-none absolute inset-0 ring-1 ring-black/5" />
+                  </div>
                 </div>
 
                 <div className="p-4">
-                  <h3 className="text-base md:text-lg font-semibold line-clamp-1">
+                  <h3 className="line-clamp-1 text-base font-semibold md:text-lg">
                     {s.title}
                   </h3>
                   {s.description ? (
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                    <p className="mt-1 line-clamp-2 text-sm text-gray-600">
                       {s.description}
                     </p>
                   ) : null}

@@ -1,3 +1,4 @@
+// app/components/Hero.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -54,7 +55,6 @@ export default function Hero() {
             className="absolute inset-0 h-full w-full object-cover"
             loading={i === 0 ? "eager" : "lazy"}
           />
-          {/* gradient’i biraz güçlendirdik ki yazılar nettir */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 md:from-black/60 md:via-black/30 md:to-black/10" />
         </div>
       ))}
@@ -69,62 +69,64 @@ export default function Hero() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -30, opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="max-w-3xl mx-auto md:mx-0 text-center md:text-left"
+              className="mx-auto max-w-3xl text-center md:mx-0 md:text-left"
             >
-              {/* şeffaf/glass kart kaldırıldı */}
               <div className="inline-block">
-                <h1 className="px-0 text-white text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight drop-shadow-2xl">
+                <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-2xl sm:text-6xl md:text-7xl">
                   {s.title}
                 </h1>
 
                 {s.subtitle && (
-                  <p className="mt-3 text-white/95 text-lg sm:text-xl md:text-2xl drop-shadow-md">
+                  <p className="mt-3 text-lg text-white/95 drop-shadow-md sm:text-xl md:text-2xl">
                     {s.subtitle}
                   </p>
                 )}
 
                 <div className="pt-5 flex justify-center md:justify-start">
+                  {/* CTA: gradient turuncu→pembe */}
                   <a
                     href={callHref}
-                    className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-7 py-3 text-white font-semibold shadow-lg hover:bg-amber-700 transition"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 px-7 py-3 font-semibold text-white shadow-lg transition hover:opacity-90 active:scale-[0.98]"
                   >
                     Hemen Ara <span aria-hidden>📞</span>
                   </a>
                 </div>
               </div>
 
-              {/* alt vurgu çizgisi */}
-              <div className="mx-auto md:mx-0 mt-4 h-1.5 w-28 rounded-full bg-amber-500/90 shadow-[0_4px_18px_rgba(245,158,11,0.6)]" />
+              {/* alt vurgu çizgisi: aynı palette hafif glow */}
+              <div className="mx-auto mt-4 w-28 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 h-1.5 shadow-[0_4px_18px_rgba(236,72,153,0.45)] md:mx-0" />
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* kontroller */}
+      {/* kontroller (oklar): gradient + beyaz ikon */}
       <button
         onClick={prev}
         aria-label="Önceki"
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-40 rounded-full bg-white/85 p-3 shadow hover:bg-white transition"
+        className="absolute left-3 top-1/2 z-40 -translate-y-1/2 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 p-3 text-white shadow-lg transition hover:opacity-90 active:scale-95"
       >
         ‹
       </button>
       <button
         onClick={next}
         aria-label="Sonraki"
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-40 rounded-full bg-white/85 p-3 shadow hover:bg-white transition"
+        className="absolute right-3 top-1/2 z-40 -translate-y-1/2 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 p-3 text-white shadow-lg transition hover:opacity-90 active:scale-95"
       >
         ›
       </button>
 
-      {/* pagination */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex gap-3">
+      {/* pagination: aktif dot gradient, pasifler beyaz/70 */}
+      <div className="absolute bottom-8 left-1/2 z-40 -translate-x-1/2 flex gap-3">
         {slides.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrent(idx)}
             aria-label={`Slide ${idx + 1}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
-              idx === current ? "w-7 bg-amber-500 shadow-md" : "w-2.5 bg-white/70 hover:bg-white"
+              idx === current
+                ? "w-7 bg-gradient-to-r from-amber-500 to-pink-500 shadow-md"
+                : "w-2.5 bg-white/70 hover:bg-white"
             }`}
           />
         ))}

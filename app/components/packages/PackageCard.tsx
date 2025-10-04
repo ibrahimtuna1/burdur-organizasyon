@@ -23,43 +23,43 @@ export default function PackageCard({
   return (
     <div
       className={[
-        "rounded-2xl border bg-white p-6 shadow-sm",
-        featured ? "ring-2 ring-amber-500" : "",
-        // Kart genelinde opaklık yok
-        "opacity-100"
+        featured
+          ? "rounded-2xl bg-gradient-to-r from-amber-500 to-pink-500 p-[1.5px]"
+          : "rounded-2xl border",
+        "bg-white shadow-sm",
       ].join(" ")}
     >
-      {featured && (
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-          <span>★</span> En Çok Tercih Edilen
+      <div className="rounded-[calc(1rem-1.5px)] bg-white p-6">
+        {featured && (
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-pink-500 px-3 py-1 text-xs font-semibold text-white shadow">
+            <span>★</span> En Çok Tercih Edilen
+          </div>
+        )}
+
+        {/* Başlık ve alt başlık */}
+        <h3 className="text-xl font-extrabold tracking-tight text-slate-900">
+          {title}
+        </h3>
+        {subtitle && <p className="mt-1 text-sm text-slate-800">{subtitle}</p>}
+
+        {/* Fiyat */}
+        <div className="mt-4">
+          <span className="text-4xl font-black text-slate-900">
+            {fmtPrice(price, currency)}
+          </span>
+          <span className="align-super text-xl text-slate-400"> /</span>
         </div>
-      )}
 
-      {/* Başlık ve alt başlık: siyah tonları */}
-      <h3 className="text-xl font-extrabold tracking-tight text-slate-900">
-        {title}
-      </h3>
-      {subtitle && (
-        <p className="mt-1 text-sm text-slate-800">{subtitle}</p>
-      )}
+        {/* Özellikler */}
+        <ul className="mt-5 space-y-2 text-slate-800">{children}</ul>
 
-      {/* Fiyat: siyah; yanındaki slash gri kalabilir */}
-      <div className="mt-4">
-        <span className="text-4xl font-black text-slate-900">
-          {fmtPrice(price, currency)}
-        </span>
-        <span className="align-super text-xl text-slate-400"> /</span>
+        <Link
+          href={WHATSAPP}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2.5 font-semibold text-white shadow-md transition hover:opacity-90"
+        >
+          Whatsapp İletişim
+        </Link>
       </div>
-
-      {/* Özellikler: koyu gri */}
-      <ul className="mt-5 space-y-2 text-slate-800">{children}</ul>
-
-      <Link
-        href={WHATSAPP}
-        className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-white hover:bg-emerald-700"
-      >
-        Whatsapp İletişim
-      </Link>
     </div>
   );
 }

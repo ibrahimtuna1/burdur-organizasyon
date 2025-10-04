@@ -102,15 +102,17 @@ export default function Sections() {
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <a
-                  href="#hizmet"
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
+                {/* gradient butonlar */}
+                <Link
+                  href="/hizmetlerimiz"
+                  className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+                  prefetch
                 >
                   Hizmetlerimizi Gör
-                </a>
+                </Link>
                 <a
                   href={`tel:${phoneE164}`}
-                  className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
+                  className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
                 >
                   Hemen Ara • {phoneHuman}
                 </a>
@@ -152,12 +154,14 @@ export default function Sections() {
               <h3 className="text-2xl font-bold tracking-tight text-slate-900">Hizmetlerimiz</h3>
               <p className="mt-2 text-slate-600">Konsepte göre özelleştirilebilir paketler.</p>
             </div>
+
+            {/* Desktop CTA: gradient + /hizmetlerimiz */}
             <Link
-              href="#iletisim"
-              className="hidden rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow md:inline-block"
+              href="/hizmetlerimiz"
+              className="hidden rounded-full bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90 md:inline-block"
               prefetch
             >
-              İletişime Geç
+              Daha Fazlasını Gör
             </Link>
           </div>
 
@@ -200,13 +204,14 @@ export default function Sections() {
             ))}
           </ul>
 
+          {/* Mobile CTA: İletişime Geç -> Daha Fazlasını Gör (/hizmetlerimiz) */}
           <div className="mt-6 md:hidden">
             <Link
-              href="#iletisim"
-              className="block rounded-md border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
+              href="/hizmetlerimiz"
+              className="block rounded-full bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-center text-sm font-semibold text-white shadow-md transition hover:opacity-90"
               prefetch
             >
-              İletişime Geç
+              Daha Fazlasını Gör
             </Link>
           </div>
         </motion.div>
@@ -305,9 +310,10 @@ export default function Sections() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
+            {/* buradakileri de aynı palette tuttum */}
             <a
               href={`tel:${phoneE164}`}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+              className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
             >
               Telefon: {phoneHuman}
             </a>
@@ -317,7 +323,7 @@ export default function Sections() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:shadow"
+              className="rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
             >
               WhatsApp’tan Yaz
             </a>

@@ -38,23 +38,29 @@ export default async function PackagesIndexPage() {
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
-            <Link
+            <div
               key={c.id}
-              href={`/paketler/${c.slug}`}
-              className="group rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md"
+              className="rounded-2xl bg-gradient-to-r from-amber-500 to-pink-500 p-[1.5px]"
             >
-              <div className="text-base font-semibold text-slate-900">
-                {c.title}
-              </div>
-              {c.description && (
-                <div className="mt-1 line-clamp-2 text-sm text-slate-800">
-                  {c.description}
+              <Link
+                href={`/paketler/${c.slug}`}
+                className="group block h-full rounded-[calc(1rem-1.5px)] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="text-base font-semibold text-slate-900">
+                  {c.title}
                 </div>
-              )}
-              <div className="mt-4 text-sm font-medium text-slate-900/70 group-hover:text-slate-900">
-                Detaya git →
-              </div>
-            </Link>
+                {c.description && (
+                  <div className="mt-1 line-clamp-2 text-sm text-slate-800">
+                    {c.description}
+                  </div>
+                )}
+                <div className="mt-4 text-sm font-semibold">
+                  <span className="bg-gradient-to-r from-amber-500 to-pink-500 bg-clip-text text-transparent">
+                    Detaya git →
+                  </span>
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}
