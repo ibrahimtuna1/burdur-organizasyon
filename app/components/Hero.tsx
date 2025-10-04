@@ -35,7 +35,7 @@ export default function Hero() {
   const s = slides[current];
 
   return (
-    <section className="relative min-h-[80vh] overflow-hidden">
+    <section className="relative min-h-[100dvh] overflow-hidden">
       {/* arka plan */}
       {slides.map((slide, i) => (
         <div
@@ -58,7 +58,12 @@ export default function Hero() {
       ))}
 
       {/* içerik */}
-      <div className="relative z-30 flex min-h-[80vh] items-center justify-center md:justify-start">
+      <div
+        className="
+          relative z-30 flex min-h-[100dvh] items-center justify-center md:justify-start
+          pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-0
+        "
+      >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             <motion.div
@@ -75,7 +80,7 @@ export default function Hero() {
                 </h1>
 
                 {s.subtitle && (
-                  <p className="mt-3 text-lg text-white/95 drop-shadow-md sm:text-xl md:text-2xl">
+                  <p className="mt-3 text-base sm:text-lg md:text-2xl text-white/95 drop-shadow-md [text-wrap:balance]">
                     {s.subtitle}
                   </p>
                 )}
@@ -99,8 +104,8 @@ export default function Hero() {
       </div>
 
       {/* mobil CTA: tamamen alta sabit (hero içinde) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 pb-4 md:hidden">
-        <div className="pointer-events-auto mx-auto w-full max-w-7xl">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 md:hidden">
+        <div className="pointer-events-auto mx-auto w-full max-w-7xl pb-[max(1rem,env(safe-area-inset-bottom))]">
           <a
             href={callHref}
             className="mx-auto block w-[min(92%,28rem)] rounded-xl bg-gradient-to-r from-amber-500 to-pink-500 px-7 py-3 text-center font-semibold text-white shadow-lg transition hover:opacity-90 active:scale-[0.98]"
@@ -126,8 +131,8 @@ export default function Hero() {
         ›
       </button>
 
-      {/* pagination: CTA ile çakışmasın diye biraz yukarı */}
-      <div className="absolute bottom-16 left-1/2 z-40 -translate-x-1/2 flex gap-3 md:bottom-8">
+      {/* pagination: CTA ile çakışmasın diye mobilde daha yukarı */}
+      <div className="absolute bottom-24 md:bottom-8 left-1/2 z-40 -translate-x-1/2 flex gap-3">
         {slides.map((_, idx) => (
           <button
             key={idx}
