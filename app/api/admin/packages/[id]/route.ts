@@ -2,8 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/serverAdmin";
 
-type Ctx = { params: { id: string } };
-
 const ensure = async (): Promise<boolean> => {
   const c = await cookies();
   return c.get("admin_session")?.value === "admin";
@@ -11,7 +9,10 @@ const ensure = async (): Promise<boolean> => {
 
 export const dynamic = "force-dynamic";
 
-export async function PUT(req: NextRequest, { params }: Ctx) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   if (!(await ensure())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   type Body = {
@@ -56,7 +57,10 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
   return NextResponse.json({ ok: true });
 }
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   if (!(await ensure())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { archived }: { archived: boolean } = await req.json();
@@ -72,10 +76,12 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   if (!(await ensure())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Hard delete (özellikleri de temizle)
   await supabaseAdmin.from("package_features").delete().eq("package_id", params.id);
   const { error } = await supabaseAdmin.from("service_packages").delete().eq("id", params.id);
 
