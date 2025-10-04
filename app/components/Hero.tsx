@@ -10,9 +10,9 @@ type Slide = {
 };
 
 const slides: Slide[] = [
-  { title: "Düğün Organizasyonu", img: "/images/slides/1.png", subtitle: "Işığını yak, detayları bize bırak." },
-  { title: "Kına Organizasyonu", img: "/images/slides/2.png", subtitle: "Gelenek + estetik = tam uyum." },
-  { title: "Açılış Organizasyonu", img: "/images/slides/3.png", subtitle: "İlk izlenim, mükemmel olsun." },
+  { title: "Düğün Organizasyonu", img: "/images/slides/1.png", subtitle: "Hayalinizdeki düğünü, en ince detayına kadar özenle planlıyoruz." },
+  { title: "Kına Organizasyonu", img: "/images/slides/2.png", subtitle: "Hayalinizdeki kına gecesini unutulmaz bir anıya dönüştürüyoruz." },
+  { title: "Açılış Organizasyonu", img: "/images/slides/3.png", subtitle: "Hayalinizdeki nişanı, size özel konseptlerle gerçeğe dönüştürüyoruz." },
 ];
 
 const CALL_NUMBER = "05412029659";
@@ -54,14 +54,14 @@ export default function Hero() {
             className="absolute inset-0 h-full w-full object-cover"
             loading={i === 0 ? "eager" : "lazy"}
           />
-          {/* üstten alta gradient; yazıyı netleştirir */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/30 to-black/10" />
+          {/* gradient’i biraz güçlendirdik ki yazılar nettir */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20 md:from-black/60 md:via-black/30 md:to-black/10" />
         </div>
       ))}
 
       {/* içerik */}
-      <div className="relative z-30 flex min-h-[80vh] items-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+      <div className="relative z-30 flex min-h-[80vh] items-center justify-center md:justify-start">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={s.title}
@@ -69,33 +69,32 @@ export default function Hero() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -30, opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="max-w-3xl"
+              className="max-w-3xl mx-auto md:mx-0 text-center md:text-left"
             >
-              {/* GLASS CARD: yazı bu kutuda; blur + ring + shadow */}
-              <div className="inline-block rounded-2xl bg-white/10 backdrop-blur-md ring-1 ring-white/20 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
-                <h1 className="px-6 pt-6 text-white text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow">
+              {/* şeffaf/glass kart kaldırıldı */}
+              <div className="inline-block">
+                <h1 className="px-0 text-white text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight drop-shadow-2xl">
                   {s.title}
                 </h1>
 
                 {s.subtitle && (
-                  <p className="px-6 pt-2 text-white/90 text-base sm:text-lg md:text-xl">
+                  <p className="mt-3 text-white/95 text-lg sm:text-xl md:text-2xl drop-shadow-md">
                     {s.subtitle}
                   </p>
                 )}
 
-                <div className="px-6 pb-6 pt-5">
+                <div className="pt-5 flex justify-center md:justify-start">
                   <a
                     href={callHref}
-                    className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-6 py-3 text-white font-semibold shadow-lg hover:bg-amber-700 transition"
+                    className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-7 py-3 text-white font-semibold shadow-lg hover:bg-amber-700 transition"
                   >
-                    Hemen Ara
-                    <span aria-hidden>📞</span>
+                    Hemen Ara <span aria-hidden>📞</span>
                   </a>
                 </div>
               </div>
 
               {/* alt vurgu çizgisi */}
-              <div className="mt-4 h-1.5 w-28 rounded-full bg-amber-500/90 shadow-[0_4px_18px_rgba(245,158,11,0.6)]" />
+              <div className="mx-auto md:mx-0 mt-4 h-1.5 w-28 rounded-full bg-amber-500/90 shadow-[0_4px_18px_rgba(245,158,11,0.6)]" />
             </motion.div>
           </AnimatePresence>
         </div>

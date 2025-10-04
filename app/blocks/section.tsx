@@ -93,12 +93,11 @@ export default function Sections() {
                 Biz kimiz?
               </p>
               <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-                Burdur &amp; Isparta’da masalsı anlar tasarlayan organizasyon ekibi
+                Burdur ve Isparta'da Hayalinizdeki Organizasyonu Gerçeğe Dönüştürüyoruz.
               </h2>
               <p className="mt-4 text-slate-600">
-                Düğün, kına, nişan, açılış ve kurumsal etkinliklerde A’dan Z’ye planlama,
-                dekorasyon ve operasyon desteği veriyoruz. Hayalinizi, misafirlerinizin
-                unutamayacağı bir deneyime çeviriyoruz.
+                Burdur Organizasyon olarak düğün, nişan, kına gecesi, sünnet, açılış ve özel etkinlik organizasyonlarında yılların tecrübesiyle hizmet vermekteyiz.
+                Her detayı özenle planlayarak, siz sadece anın tadını çıkarın diye çalışıyoruz.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">

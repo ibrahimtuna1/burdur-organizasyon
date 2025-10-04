@@ -132,12 +132,44 @@ export default async function ServicePage(props: { params: Promise<{ slug: strin
         .svc-sidebar a { display:block; padding:10px 12px; border-bottom:1px solid #eef2f7; color:#0f172a; }
         .svc-sidebar a:hover { background:#f8fafc; }
         .svc-sidebar a.active { background:#eef2ff; color:#4338ca; font-weight:600; }
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display:none; }
       `}</style>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
+      {/* MOBİL: açılır liste (sidebar yerine) */}
+      <div className="md:hidden mb-4">
+        <details className="rounded-xl border">
+          <summary className="px-4 py-3 text-sm font-semibold flex items-center justify-between">
+            Tüm Hizmetler
+            <span className="text-slate-400">▼</span>
+          </summary>
+        {/* aynı sidebar stilleriyle liste */}
+          <nav className="svc-sidebar max-h-[65vh] overflow-auto border-t">
+            {list.map((item) => {
+              const active = item.slug === s.slug;
+              return (
+                <Link
+                  key={item.slug}
+                  href={`/hizmet/${item.slug}`}
+                  className={active ? "active" : ""}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {!active && <span className="text-slate-400">›</span>}
+                    {item.title}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+        </details>
+      </div>
+
+      {/* GRID: mobilde içerik önce, desktop'ta sidebar + içerik */}
       <div className="grid gap-6 md:grid-cols-[280px_1fr]">
-        {/* Sidebar */}
-        <aside className="svc-sidebar h-fit bg-transparent p-0 md:sticky md:top-6">
+        {/* Sidebar - sadece md ve üstü */}
+        <aside className="svc-sidebar h-fit bg-transparent p-0 hidden md:block md:sticky md:top-6 md:order-1">
           <div className="svc-title px-4 py-3 text-lg font-semibold">Tüm Hizmetler</div>
           <nav className="max-h-[70vh] overflow-auto rounded-xl border">
             {list.map((item) => {
@@ -160,7 +192,7 @@ export default async function ServicePage(props: { params: Promise<{ slug: strin
         </aside>
 
         {/* Detay */}
-        <section className="service-detail mx-auto max-w-5xl bg-transparent p-0">
+        <section className="service-detail mx-auto max-w-5xl bg-transparent p-0 order-1 md:order-2">
           <h1 className="mb-4 text-2xl font-semibold md:text-3xl">{s.title}</h1>
 
           <div className="grid gap-6 md:grid-cols-2 md:items-start">

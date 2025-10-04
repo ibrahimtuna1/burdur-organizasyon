@@ -43,7 +43,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* socials */}
+          {/* socials (istersen kapatabilirsin) */}
           <nav className="ml-4 hidden items-center gap-3 sm:flex">
             <Link href="#" aria-label="Facebook" className="hover:text-amber-700 transition">
               <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
@@ -53,7 +53,6 @@ export default function Header() {
                 />
               </svg>
             </Link>
-            {/* diğer ikonlar aynı kalabilir */}
           </nav>
         </div>
       </div>
@@ -74,24 +73,18 @@ export default function Header() {
             <span className="sr-only">Organizasyoncum</span>
           </Link>
 
-          {/* Menu */}
-          <nav className="hidden items-center gap-6 text-sm font-medium text-slate-800 md:flex">
+          {/* Menu (sadece 2 link, pill stil) */}
+          <nav className="hidden items-center gap-3 text-sm font-medium text-slate-800 md:flex">
             {[
-              ["#hizmetler", "Organizasyon Paketleri"],
-              ["#galeri", "Galeri"],
-              ["#hizmetler", "Hizmetlerimiz"],
-              ["#hakkimizda", "Faaliyetlerimiz"],
-              ["#hizmetler", "Ürünler"],
-              ["#hakkimizda", "Blog"],
-              ["#", "Diğer"],
+              ["paketler", "Organizasyon Paketleri"],
+              ["hizmetlerimiz", "Hizmetlerimiz"],
             ].map(([href, label]) => (
               <Link
                 key={label}
                 href={href}
-                className="relative hover:text-amber-700 transition"
+                className="group inline-flex items-center rounded-full bg-white/70 px-4 py-2 ring-1 ring-slate-200 shadow-sm hover:ring-amber-500 hover:text-amber-700 transition"
               >
                 {label}
-                <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-amber-600 transition-all group-hover:w-full" />
               </Link>
             ))}
           </nav>
@@ -100,7 +93,7 @@ export default function Header() {
           <div className="hidden md:block">
             <Link
               href="#iletisim"
-              className="rounded-md bg-gradient-to-r from-amber-500 to-pink-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:opacity-90 transition"
+              className="rounded-full bg-gradient-to-r from-amber-500 to-pink-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:opacity-90 transition"
             >
               İletişim
             </Link>
