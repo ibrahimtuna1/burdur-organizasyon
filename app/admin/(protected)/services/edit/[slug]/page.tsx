@@ -90,6 +90,9 @@ export default function EditService() {
     keywords: [],
   });
 
+  // 🔑 Virgül sorunu için ham metin state'i
+  const [keywordsText, setKeywordsText] = useState<string>("");
+
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -113,6 +116,7 @@ export default function EditService() {
       if (res.ok) {
         const dataUnknown = (await res.json().catch(() => null)) as unknown;
         if (isRecord(dataUnknown)) {
+          const fetchedKeywords = asStringArrayOrNull(dataUnknown.keywords) ?? [];
           setForm((prev) => ({
             ...prev,
             id: asString(dataUnknown.id) ?? prev.id,
@@ -123,8 +127,10 @@ export default function EditService() {
             order_no: asNumberOrNull(dataUnknown.order_no) ?? 1000,
             is_published: asBool(dataUnknown.is_published) ?? false,
             is_archived: (asBool(dataUnknown.is_archived) ?? false) as boolean,
-            keywords: asStringArrayOrNull(dataUnknown.keywords) ?? [],
+            keywords: fetchedKeywords,
           }));
+          // Input'a ham metin olarak bas
+          setKeywordsText(fetchedKeywords.join(", "));
         }
       } else if (res.status === 404) {
         setErr("Kayıt bulunamadı.");
@@ -177,6 +183,16 @@ export default function EditService() {
     }
   }
 
+  /* -------- Keywords parse (önizleme & submit) -------- */
+  const parsedKeywords = useMemo(
+    () =>
+      keywordsText
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [keywordsText]
+  );
+
   /* -------- Kaydet -------- */
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -186,8 +202,11 @@ export default function EditService() {
     const payload: FormState = {
       ...form,
       slug: form.slug?.trim() ? slugify(form.slug) : autoSlug,
-      keywords: (form.keywords ?? []).map((k) => k.trim()).filter(Boolean),
+      keywords: parsedKeywords,
     };
+
+    // UI tutarlılığı
+    setForm((p) => ({ ...p, keywords: parsedKeywords }));
 
     startTransition(async () => {
       const res = await fetch("/api/admin/services/upsert", {
@@ -296,16 +315,8 @@ export default function EditService() {
             <label className="text-sm font-medium">Keywords (virgülle ayır)</label>
             <input
               className="rounded-md border px-3 py-2"
-              value={(form.keywords ?? []).join(", ")}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  keywords: e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
-                })
-              }
+              value={keywordsText}
+              onChange={(e) => setKeywordsText(e.target.value)}
               placeholder="düğün, kına, nişan, mekan süsleme, organizasyon"
             />
             <p className="text-xs text-gray-500">
@@ -366,10 +377,17 @@ export default function EditService() {
           {ok && <p className="text-sm text-green-600">{ok}</p>}
 
           <div className="flex gap-3">
-            <button className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-60" disabled={pending}>
+            <button
+              className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-60"
+              disabled={pending}
+            >
               {pending ? "Kaydediliyor…" : "Kaydet"}
             </button>
-            <button type="button" className="rounded-md border px-4 py-2" onClick={() => router.back()}>
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2"
+              onClick={() => router.back()}
+            >
               Vazgeç
             </button>
           </div>
@@ -382,14 +400,22 @@ export default function EditService() {
             <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
               {form.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={form.image_url} alt={form.title || "Kapak"} className="h-full w-full object-cover" />
+                <img
+                  src={form.image_url}
+                  alt={form.title || "Kapak"}
+                  className="h-full w-full object-cover"
+                />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-gray-400">Kapak yok</div>
+                <div className="flex h-full w-full items-center justify-center text-gray-400">
+                  Kapak yok
+                </div>
               )}
             </div>
             <div className="space-y-2 p-4">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="line-clamp-2 text-base font-semibold text-gray-900">{form.title || "Başlık"}</h3>
+                <h3 className="line-clamp-2 text-base font-semibold text-gray-900">
+                  {form.title || "Başlık"}
+                </h3>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                     form.is_published ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
@@ -398,17 +424,21 @@ export default function EditService() {
                   {form.is_published ? "Yayında" : "Taslak"}
                 </span>
               </div>
-              <p className={`line-clamp-2 text-sm ${form.description ? "text-gray-600" : "text-gray-400"}`}>
+              <p
+                className={`line-clamp-2 text-sm ${
+                  form.description ? "text-gray-600" : "text-gray-400"
+                }`}
+              >
                 {form.description || "Açıklama girilmemiş."}
               </p>
               <div className="flex items-center justify-between pt-1 text-xs text-gray-500">
                 <span>Sıra: {form.order_no ?? "—"}</span>
                 <span className="truncate">/{form.slug || slugify(form.title || "")}</span>
               </div>
-              {form.keywords && form.keywords.length > 0 && (
+              {parsedKeywords.length > 0 && (
                 <div className="pt-2 text-xs text-gray-500">
                   <span className="mr-1 font-medium">Keywords:</span>
-                  {form.keywords.join(", ")}
+                  {parsedKeywords.join(", ")}
                 </div>
               )}
             </div>
