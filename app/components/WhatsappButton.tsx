@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCallback } from "react";
 
 export default function WhatsappButton() {
-  const phone = "+905412029659";
+  const phone = "+905015529659";
   const text = encodeURIComponent("Merhaba, bilgi almak istiyorum 👋");
   const appUrl = `whatsapp://send?phone=${phone}&text=${text}`;
   const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;

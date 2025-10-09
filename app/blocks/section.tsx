@@ -32,8 +32,8 @@ type Service = {
   image_url: string | null;
 };
 
-const phoneE164 = "+905412029659";
-const phoneHuman = "0 541 202 96 59";
+const phoneE164 = "+905015529659";
+const phoneHuman = "0 501 552 9659";
 
 // Supabase browser client
 const supabase = createClient(
@@ -318,7 +318,7 @@ export default function Sections() {
               Telefon: {phoneHuman}
             </a>
             <a
-              href={`https://wa.me/905412029659?text=${encodeURIComponent(
+              href={`https://wa.me/905015529659?text=${encodeURIComponent(
                 "Merhaba, organizasyon hizmetleri hakkında bilgi almak istiyorum."
               )}`}
               target="_blank"

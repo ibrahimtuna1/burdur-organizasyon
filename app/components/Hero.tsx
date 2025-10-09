@@ -16,7 +16,7 @@ const slides: Slide[] = [
   { title: "Açılış Organizasyonu", img: "/images/slides/3.png", subtitle: "Hayalinizdeki nişanı, size özel konseptlerle gerçeğe dönüştürüyoruz." },
 ];
 
-const CALL_NUMBER = "05412029659";
+const CALL_NUMBER = "05015529659";
 const callHref = `tel:${CALL_NUMBER}`;
 
 export default function Hero() {
