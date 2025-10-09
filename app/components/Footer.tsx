@@ -82,14 +82,14 @@ export default function Footer() {
             <div className="text-sm font-semibold">İletişim</div>
             <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
               <li>📍 Burdur Merkez</li>
-              <li>📞 <a href="tel:+905412029659" className="hover:text-slate-900 transition">+90 541 202 96 59</a></li>
-              <li>💬 <a href="https://wa.me/905412029659" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">WhatsApp</a></li>
+              <li>📞 <a href="tel:+905015529659" className="hover:text-slate-900 transition">+9 0501 552 9659</a></li>
+              <li>💬 <a href="https://wa.me/905015529659" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">WhatsApp</a></li>
               <li>✉️ <a href="mailto:destek@organizasyoncum.net" className="hover:text-slate-900 transition">destek@organizasyoncum.net</a></li>
             </ul>
             <div className="mt-3">
               {/* Footer CTA */}
               <a
-                href="tel:+905412029659"
+                href="tel:+905015529659"
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-pink-500 px-3.5 py-2 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
